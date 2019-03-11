@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WS-VSP-SRV Example</title>
+</head>
+<body>
+<h1>WS-VSP-SRV Example</h1>
+<button id="startRec" onClick="startRec()">Start Rec</button>
+<button id="stopRec" onClick="stopRec()">Stop Rec</button>
+<h2>WS server response:</h2>
+<p id="response"></p>
+</body>
+<script>
+    function startRec() {
+        console.log('send START_REC');
+        ws.send('START_REC');
+    }
+    function stopRec() {
+        console.log('send STOP_REC');
+        ws.send('STOP_REC');
+    }
+    const ws = new WebSocket('ws://localhost:8080');
+
+    ws.onopen = function open() {
+        console.log('open success.')
+    };
+
+    ws.onmessage = function incoming(data) {
+        console.log('data ', data);
+        document.getElementById("response").innerHTML = data.data;
+    };
+</script>
+</html>
