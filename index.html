@@ -8,10 +8,29 @@
 <h1>WS-VSP-SRV Example</h1>
 <button id="startRec" onClick="startRec()">Start Rec</button>
 <button id="stopRec" onClick="stopRec()">Stop Rec</button>
+<button id="startVideo" onClick="startVideo()">Start Video</button>
 <h2>WS server response:</h2>
 <p id="response"></p>
+<canvas id="canvas" width="640" height="480"></canvas>
 </body>
 <script>
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext('2d');
+
+    let reader = new FileReader();
+    reader.addEventListener("loadend", function() {
+        const imageData = ctx.createImageData(480, 640);
+        //console.log(imageData);
+        //let arr = new Uint8ClampedArray(reader.result);
+        //console.log(arr);
+        imageData.data.set(new Uint8ClampedArray(reader.result));
+        //reader.result = null;
+        //console.log(imageData);
+        ctx.putImageData(imageData, 0, 0);
+    });
+
+    let img = new Image();
+
     function startRec() {
         console.log('send START_REC');
         ws.send('START_REC');
@@ -20,15 +39,26 @@
         console.log('send STOP_REC');
         ws.send('STOP_REC');
     }
+    function startVideo() {
+        console.log('send START_VIDEO_CAPTURE');
+        ws.send('START_VIDEO_CAPTURE');
+    }
     const ws = new WebSocket('ws://localhost:8080');
 
     ws.onopen = function open() {
         console.log('open success.')
     };
 
-    ws.onmessage = function incoming(data) {
-        console.log('data ', data);
-        document.getElementById("response").innerHTML = data.data;
+    ws.onmessage = function incoming(response) {
+        //document.getElementById("response").innerHTML = response.data;
+        try  {
+            reader.readAsArrayBuffer(response.data);   
+        } catch (e) {
+            
+        }
+        
+        //console.log(response.data);
+
     };
 </script>
 </html>

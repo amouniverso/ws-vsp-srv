@@ -48,4 +48,3 @@ micInputStream.on('processExitComplete', function() {
 module.exports = {
     micInstance: micInstance
 };
-//micInstance.start();
