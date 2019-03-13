@@ -1,28 +1,27 @@
 const cv = require('opencv4nodejs');
 
 function startVideoCapture(ws) {
-    // open capture from webcam
     const devicePort = 0;
     const vCap = new cv.VideoCapture(devicePort);
 
     // loop through the capture
-    const delay = 100;
+    const delay = 120;
     let done = false;
     while (!done) {
         console.log('read');
         let frame = vCap.read();
-        // loop back to start on end of stream reached
         if (frame.empty) {
-            console.log('empty');
             vCap.reset();
             frame = vCap.read();
         }
-        // ...
         //cv.imshow('test frame', frame);
-        //ws.send(frame.getData());
-        ws.send(frame.getData());
-        const key = cv.waitKey(delay);
-        //done = key !== 255;
+
+        // convert image to rgba color space
+        const frameRGBA = frame.channels === 1
+            ? frame.cvtColor(cv.COLOR_GRAY2RGBA)
+            : frame.cvtColor(cv.COLOR_BGR2RGBA);
+        ws.send(frameRGBA.getData());
+        cv.waitKey(delay);
     }
 }
 

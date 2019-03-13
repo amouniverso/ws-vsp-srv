@@ -17,20 +17,11 @@
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext('2d');
 
-    let reader = new FileReader();
-    reader.addEventListener("loadend", function() {
-        const imageData = ctx.createImageData(480, 640);
-        //console.log(imageData);
-        //let arr = new Uint8ClampedArray(reader.result);
-        //console.log(arr);
-        imageData.data.set(new Uint8ClampedArray(reader.result));
-        //reader.result = null;
-        //console.log(imageData);
+    function drawImage(data) {
+        const imageData = ctx.createImageData(640, 480);
+        imageData.data.set(data);
         ctx.putImageData(imageData, 0, 0);
-    });
-
-    let img = new Image();
-
+    }
     function startRec() {
         console.log('send START_REC');
         ws.send('START_REC');
@@ -44,21 +35,14 @@
         ws.send('START_VIDEO_CAPTURE');
     }
     const ws = new WebSocket('ws://localhost:8080');
+    ws.binaryType = "arraybuffer";
 
     ws.onopen = function open() {
         console.log('open success.')
     };
 
     ws.onmessage = function incoming(response) {
-        //document.getElementById("response").innerHTML = response.data;
-        try  {
-            reader.readAsArrayBuffer(response.data);   
-        } catch (e) {
-            
-        }
-        
-        //console.log(response.data);
-
+       drawImage(new Uint8ClampedArray(response.data));
     };
 </script>
 </html>
