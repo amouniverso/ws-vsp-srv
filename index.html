@@ -11,16 +11,22 @@
 <button id="startVideo" onClick="startVideo()">Start Video</button>
 <h2>WS server response:</h2>
 <p id="response"></p>
+<h3 id="frameRate"></h3>
 <canvas id="canvas" width="640" height="480"></canvas>
 </body>
 <script>
     let canvas = document.getElementById("canvas");
-    let ctx = canvas.getContext('2d');
-
+    let ctx = canvas.getContext('2d', {alpha: false});
+    const imageData = ctx.createImageData(640, 480);
+    let frameCount = 0;
+    setInterval(function() {
+        document.getElementById("frameRate").innerHTML = "FrameRate: " + frameCount;
+        frameCount = 0;
+    }, 1000);
     function drawImage(data) {
-        const imageData = ctx.createImageData(640, 480);
         imageData.data.set(data);
         ctx.putImageData(imageData, 0, 0);
+        frameCount++;
     }
     function startRec() {
         console.log('send START_REC');
@@ -42,6 +48,7 @@
     };
 
     ws.onmessage = function incoming(response) {
+       console.log(response);
        drawImage(new Uint8ClampedArray(response.data));
     };
 </script>
