@@ -12,6 +12,7 @@
 <h2>WS server response:</h2>
 <p id="response"></p>
 <h3 id="frameRate"></h3>
+<img id="imgContainer">
 <canvas id="canvas" width="640" height="480"></canvas>
 </body>
 <script>
@@ -23,10 +24,17 @@
         document.getElementById("frameRate").innerHTML = "FrameRate: " + frameCount;
         frameCount = 0;
     }, 1000);
-    function drawImage(data) {
-        imageData.data.set(data);
+    function drawImageToCanvas(data) {
+        imageData.data.set(new Uint8ClampedArray(data));
         ctx.putImageData(imageData, 0, 0);
-        frameCount++;
+    }
+    function drawImageToImg(data) {
+        const arrayBufferView = new Uint8ClampedArray(data);
+        const blob = new Blob( [ arrayBufferView ] );
+        const url = URL.createObjectURL(blob);
+        const img = document.getElementById("imgContainer");
+        img.src = url;
+        URL.revokeObjectURL(url);
     }
     function startRec() {
         console.log('send START_REC');
@@ -48,8 +56,10 @@
     };
 
     ws.onmessage = function incoming(response) {
-       console.log(response);
-       drawImage(new Uint8ClampedArray(response.data));
+        //drawImageToCanvas(response.data);
+        drawImageToImg(response.data);
+        frameCount++;
+        //console.log(response);
     };
 </script>
 </html>

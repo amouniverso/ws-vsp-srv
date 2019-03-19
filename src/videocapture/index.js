@@ -1,6 +1,15 @@
 const cv = require('opencv4nodejs');
 const path = require('path');
 
+// import nodejs bindings to native tensorflow,
+// not required, but will speed up things drastically (python required)
+// require('@tensorflow/tfjs-node');
+// const faceapi = require('face-api.js');
+//
+// faceapi.nets.ssdMobilenetv1.loadFromDisk('./models').then((res) => {
+//     console.log('LoadSuccess ' + res);
+// });
+
 const faceClassifier = new cv.CascadeClassifier(cv.LBP_FRONTALFACE_IMPROVED); //LBP_FRONTALFACE_IMPROVED HAAR_FRONTALFACE_ALT2
 const eyesClassifier = new cv.CascadeClassifier(cv.HAAR_EYE);
 let faceObjects = null;
@@ -27,17 +36,26 @@ function startVideoCapture(ws) {
             frame = vCap.read();
         }
 
-        openCVFaceDetection(frame);
+        //openCVFaceDetection(frame);
         //facenetFaceDetection(frame);
 
         //cv.imshow('test frame', frame);
-        // convert image to rgba color space
-        const frameRGBA = frame.channels === 1
-            ? frame.cvtColor(cv.COLOR_GRAY2RGBA)
-            : frame.cvtColor(cv.COLOR_BGR2RGBA);
-        ws.send(frameRGBA.getData());
+        sendPNG(ws, frame);
         cv.waitKey(delay);
     }
+}
+
+function sendRGBA(ws, frame) {
+    // convert image to rgba color space
+    const frameRGBA = frame.channels === 1
+        ? frame.cvtColor(cv.COLOR_GRAY2RGBA)
+        : frame.cvtColor(cv.COLOR_BGR2RGBA);
+    ws.send(frameRGBA.getData());
+}
+
+function sendPNG(ws, frame) {
+    const bufferPng = cv.imencode(".png", frame);
+    ws.send(bufferPng);
 }
 
 function openCVFaceDetection(frame) {
