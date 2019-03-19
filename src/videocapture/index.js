@@ -37,7 +37,7 @@ function startVideoCapture(ws) {
         }
 
         //openCVFaceDetection(frame);
-        //facenetFaceDetection(frame);
+        facenetFaceDetection(frame);
 
         //cv.imshow('test frame', frame);
         sendPNG(ws, frame);
